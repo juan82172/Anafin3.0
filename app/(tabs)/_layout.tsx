@@ -19,7 +19,7 @@ const _layout = () => {
       <Tabs.Screen
         name="StatementResults"
         options={{
-          headerTitle: "Estado de resultados",
+          headerTitle: "Estado de resultados y Balance general",
           tabBarLabel: "Datos",
           tabBarLabelStyle: { fontSize: 12 },
           tabBarIcon: ({ color }) => (

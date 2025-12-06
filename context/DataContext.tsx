@@ -1,3 +1,4 @@
+// context/DataContext.tsx
 import {
   AnalyticsInformation,
   DataInformation,
@@ -9,7 +10,8 @@ import {
   DataInformationInterface,
   EnterpriseInformationInterface,
 } from "@/interfaces/dataInterfaces/DataContextProps";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { initIndicatorsTable } from "@/app/database/indicatorsRepository";
 
 const initialValue: DataContextInterface = {
   enterpriseInformation: null,
@@ -32,6 +34,11 @@ export const DataContextProvider = ({ children }: ChildrenProps) => {
 
   const [analyticsInformation, setAnalyticsInformation] =
     useState<AnalyticsInformationInterface | null>(null);
+
+  // 🔹 Inicializar tabla de indicadores una sola vez
+  useEffect(() => {
+    initIndicatorsTable();
+  }, []);
 
   const handleSetAnalyticsInformation = (analyticsInformation: any) => {
     setAnalyticsInformation(analyticsInformation);

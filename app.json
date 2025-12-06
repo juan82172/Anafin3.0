@@ -7,33 +7,46 @@
     "icon": "./assets/images/AnaFin-icon.png",
     "scheme": "anafin",
     "userInterfaceStyle": "automatic",
+
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anafin.analisisfinanciero.app",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/AnaFin-icon.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
-      "package": "com.anafin.analisisfinanciero.app"
+      "package": "com.amca.anafinapp.v2",
+      "versionCode": 1
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
+
     "plugins": [
       "expo-router",
-      "@react-native-firebase/app",
+
+      [
+        "@react-native-firebase/app",
+        {
+          "ios": {
+            "use_frameworks": "static"
+          }
+        }
+      ],
+
       "@react-native-google-signin/google-signin",
+
       [
         "expo-build-properties",
         {
@@ -43,17 +56,20 @@
         }
       ]
     ],
+
     "experiments": {
       "typedRoutes": true
     },
+
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "4dc0854e-781d-403b-8e39-fabad5d99385"
+        "projectId": "65fdab4f-1ae3-44ad-b7c4-7a707365c0bc"
       }
     },
-    "owner": "anafin"
+
+    "owner": "pablo.1194"
   }
 }

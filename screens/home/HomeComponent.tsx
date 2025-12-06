@@ -29,19 +29,15 @@ const HomeComponent = () => {
       "Guardado exitoso",
       `Dirígete a "Datos" para visualizar el estado de resultados`,
       [
-        {
-          text: "Cancelar",
-          onPress: () => console.log("Cancelar"),
-          style: "cancel",
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Ir a datos",
           onPress: () => router.push("/StatementResults"),
           style: "destructive",
         },
-      ],
-      { cancelable: false }
+      ]
     );
+
     const newEnterpriseInformation = new EnterpriseInformation(values);
     handleSetEnterpriseInformation(newEnterpriseInformation);
     setInitialValues(newEnterpriseInformation);
@@ -69,20 +65,22 @@ const HomeComponent = () => {
             <CustomAlertInformative
               isVisible={isVisible}
               type="warning"
-              message="Si modificas este formulario, se creará nuevamente el estado de resultados, para habilitar el formulario nuevamente cierra este mensaje."
+              message="Si modificas este formulario, se generará nuevamente el estado de resultados."
               onDismiss={() => setIsVisible(false)}
             />
           )}
+
           <CustomInput
             label="NIT de la empresa"
             value={values.enterpriseNIT}
             onChangeText={handleChange("enterpriseNIT")}
-            placeholder="Ingrese el nit de la empresa"
+            placeholder="Ingrese el NIT de la empresa"
             onBlur={handleBlur("enterpriseNIT")}
           />
           {errors.enterpriseNIT && touched.enterpriseNIT && (
             <Text className="text-red-600 mb-3">{errors.enterpriseNIT}</Text>
           )}
+
           <CustomInput
             label="Nombre de la empresa"
             value={values.enterpriseName}
@@ -93,6 +91,7 @@ const HomeComponent = () => {
           {errors.enterpriseName && touched.enterpriseName && (
             <Text className="text-red-600 mb-3">{errors.enterpriseName}</Text>
           )}
+
           <CustomSelect
             label="Seleccione una opción"
             selectedValue={
@@ -106,34 +105,40 @@ const HomeComponent = () => {
           {errors.enterpriseType && touched.enterpriseType && (
             <Text className="text-red-600 mb-3">{errors.enterpriseType}</Text>
           )}
+
           <CustomInput
             label="Año inicial"
-            value={values.initialYear != 0 ? values.initialYear.toString() : ""}
+            value={values.initialYear ? values.initialYear.toString() : ""}
             onChangeText={handleChange("initialYear")}
             onBlur={handleBlur("initialYear")}
             placeholder="Ingrese el año inicial"
             keyboardType="numeric"
-            inputType="number"
           />
           {errors.initialYear && touched.initialYear && (
             <Text className="text-red-600 mb-3">{errors.initialYear}</Text>
           )}
+
           <CustomInput
             label="Años de información"
-            value={values.years != 0 ? values.years.toString() : ""}
+            value={values.years ? values.years.toString() : ""}
             onChangeText={handleChange("years")}
             onBlur={handleBlur("years")}
             placeholder="Ingrese los años de información"
             keyboardType="numeric"
-            inputType="number"
           />
           {errors.years && touched.years && (
             <Text className="text-red-600 mb-3">{errors.years}</Text>
           )}
+
           <CustomFormButton
             onPressFunction={handleSubmit}
             textButton="Generar estado de resultados"
             isDisabled={!isValid || isVisible}
+          />
+
+          <CustomFormButton
+            textButton="Indicadores Financieros"
+            onPressFunction={() => router.push("/financial-indicators")}
           />
         </View>
       )}

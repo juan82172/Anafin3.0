@@ -77,7 +77,7 @@ const ResultsComponents = () => {
     const result = {
       id: resultId,
       title: `Resultados de la empresa ${enterpriseInformation?.enterpriseName} NIT: ${enterpriseInformation?.enterpriseNIT}`,
-      results: `Resultados de la empresa ${enterpriseInformation?.enterpriseName} NIT: ${enterpriseInformation?.enterpriseNIT}.\n\n${verticalText}`,
+      results: `Resultados de la empresa ${enterpriseInformation?.enterpriseName} NIT: ${enterpriseInformation?.enterpriseNIT}.\n\n${verticalText}.\n${horizontalText}`,
       email: user?.email,
     };
     setTimeout(() => {
@@ -86,62 +86,215 @@ const ResultsComponents = () => {
     }, 3000);
     setResultGenerated(result);
   };
-
+  //analisis vertical
   const generateVerticalText = (verticalInformation: any) => {
     let text = "";
     if (enterpriseInformation?.enterpriseType === "service") {
+      // Actividad de servicios
       verticalInformation?.forEach((element: any) => {
-        const introText = `Resultados del análisis vertical en el ${element.currentYear}.\n`;
+        const introText = `🔍 Resultados del análisis vertical en el año ${element.currentYear}:\n`;
+
         const netExpenses =
           element.operatingSalesExpenses +
           element.administrativeOperatingExpenses;
-        const expensesTex =
+        const expensesText =
           netExpenses > 0
-            ? `Del cien por ciento de los ingresos, el ${netExpenses}% corresponden a los gastos operacionales del negocio.`
-            : "En este periodo no se presentaron gastos operacionales.";
+            ? `💰 Del 100% de los ingresos, el ${netExpenses}% corresponde a los gastos operacionales del negocio.`
+            : "💡 En este periodo no se presentaron gastos operacionales.";
 
-        const operatingProfitText = `Quedando una utilidad bruta operacional equivalente al ${element.operatingProfit}%.`;
+        const operatingProfitText = `📈 La utilidad bruta operacional es equivalente al ${element.operatingProfit}%.`;
 
         const netIncomeText =
           element.netIncome > 0
-            ? `Con esta utilidad se cubren los otros gastos y el impuesto a la renta, quedando una utilidad positiva del ejercicio correspondiente al ${element.netIncome}%.`
-            : `Con esta utilidad se cubren los otros gastos y el impuesto a la renta, quedando una utilidad negativa del ejercicio correspondiente al ${element.netIncome}%.`;
+            ? `✅ Después de cubrir los otros gastos y el impuesto a la renta, queda una utilidad positiva del ejercicio correspondiente al ${element.netIncome}%.`
+            : `⚠️ Después de cubrir los otros gastos y el impuesto a la renta, queda una utilidad negativa del ejercicio correspondiente al ${element.netIncome}%.`;
 
-        text += `${introText}${expensesTex} ${operatingProfitText} ${netIncomeText}\n\n`;
+        let balanceGeneral = ""; // Inicializar vacío
+
+        if (element.totalactias > 0) {
+          const activosCorrientesPorcentaje = (
+            (element.subactcorr / element.totalactias) *
+            100
+          ).toFixed(1);
+          const activosFijosPorcentaje = (
+            (element.subppea / element.totalactias) *
+            100
+          ).toFixed(1);
+          const otrasActividadesPorcentaje = (
+            (element.subtoact / element.totalactias) *
+            100
+          ).toFixed(1);
+
+          const pasivosCorrientesPorcentaje = (
+            (element.subpascorr / element.totalfinanas) *
+            100
+          ).toFixed(1);
+          const pasivosLargoPlazoPorcentaje = (
+            (element.subpalarp / element.totalfinanas) *
+            100
+          ).toFixed(1);
+          const patrimonioPorcentaje = (
+            (element.subpatrim / element.totalfinanas) *
+            100
+          ).toFixed(1);
+
+          balanceGeneral =
+            `🏦 Adicionalmente, en el ${element.currentYear} se generó una inversión total de ${element.totalactias}.\n` +
+            `👉 Esta inversión está distribuida en:\n` +
+            `   - Activos corrientes: ${element.subactcorr} (${activosCorrientesPorcentaje}%)\n` +
+            `   - Activos fijos: ${element.subppea} (${activosFijosPorcentaje}%)\n` +
+            `   - Otras actividades económicas: ${element.subtoact} (${otrasActividadesPorcentaje}%)\n\n` +
+            `💡 Para la financiación total:\n` +
+            `   - Pasivos corrientes: ${element.subpascorr} (${pasivosCorrientesPorcentaje}%)\n` +
+            `   - Pasivos a largo plazo: ${element.subpalarp} (${pasivosLargoPlazoPorcentaje}%)\n` +
+            `   - Capital social y patrimonio: ${element.subpatrim} (${patrimonioPorcentaje}%)\n`;
+        }
+
+        text +=
+          `${introText}\n` +
+          `${expensesText}\n` +
+          `${operatingProfitText}\n` +
+          `${netIncomeText}\n\n` +
+          `${balanceGeneral}\n` +
+          `\n\n`;
       });
-    } else {
-      verticalInformation?.forEach((element: any) => {
-        const introText = `Resultados del análisis vertical en el ${element.currentYear}.\n`;
-        const netSalesText = `Del cien por ciento de las ventas, teniendo en cuenta las devoluciones y los descuentos el ${element.netSales}% corresponde a las ventas netas.`;
-        const costOfSalesText = `El costo de ventas corresponde al ${element.costOfSales}%.`;
-        const grossOperatingIncomeText = `Quedando una utilidad bruta operacional equivalente al ${element.grossOperatingIncome}%.`;
-        const operatingProfitText = `Con lo cual se absorben los gastos operacionales para obtener una utilidad operacional del ${element.operatingProfit}.`;
-        const netIncomeText =
-          element.netIncome > 0
-            ? `Con esta utilidad se cubren los gastos financieros y extraordinarios, y el impuesto a la renta quedando una utilidad positiva del ejercicio correspondiente al ${element.netIncome}%.`
-            : `Con esta utilidad se cubren los gastos financieros y extraordinarios, y el impuesto a la renta quedando una utilidad negativa del ejercicio correspondiente al ${element.netIncome}%.`;
-        text += `${introText}${netSalesText} ${costOfSalesText} ${grossOperatingIncomeText} ${operatingProfitText} ${netIncomeText}\n\n`;
-      });
+    }
+    else {
+      // Actividad comercial
+verticalInformation?.forEach((element: any) => {
+  const introText =
+    `📊 Resultados del análisis vertical en el ${element.currentYear}:\n`;
+
+  const netSalesText =
+    `💵 Ventas netas: Del 100% de las ventas, teniendo en cuenta devoluciones y descuentos, ` +
+    `el ${element.netSales} corresponde a las ventas netas.`;
+
+  const costOfSalesText =
+    `📉Costo de ventas:Corresponde al ${element.costOfSales}%.`;
+
+  const grossOperatingIncomeText =
+    `💡 Utilidad bruta operacional: Equivalente al ${element.grossOperatingIncome}%.`;
+
+  const operatingProfitText =
+    `📈 Utilidad operacional:Después de absorber los gastos operacionales, ` +
+    `se obtiene una utilidad operacional del ${element.operatingProfit}%.`;
+
+  const netIncomeText =
+    element.netIncome > 0
+      ? `✅ Resultado final: Se cubren los gastos financieros y extraordinarios, ` +
+        `y el impuesto a la renta, quedando una utilidad positiva del ${element.netIncome}%.`
+      : `⚠️ Resultado final: Se cubren los gastos financieros y extraordinarios, ` +
+        `y el impuesto a la renta, quedando una utilidad negativa del ${element.netIncome}%.`;
+
+  let balanceGeneral = ""; // Inicializamos vacío
+
+  if (element.totalactiac > 0) {
+    const activosCorrientesPorcentaje = (
+      (element.subaccomer / element.totalactiac) *
+      100
+    ).toFixed(1);
+
+    const activosFijosPorcentaje = (
+      (element.subtppe / element.totalactiac) *
+      100
+    ).toFixed(1);
+
+    const otrasActividadesPorcentaje = (
+      (element.subtoaac / element.totalactiac) *
+      100
+    ).toFixed(1);
+
+    const pasivosCorrientesPorcentaje = (
+      (element.subtopcac / element.totalfinanac) *
+      100
+    ).toFixed(1);
+
+    const pasivosLargoPlazoPorcentaje = (
+      (element.subtoplac / element.totalfinanac) *
+      100
+    ).toFixed(1);
+
+    const patrimonioPorcentaje = (
+      (element.subtopatac / element.totalfinanac) *
+      100
+    ).toFixed(1);
+
+    balanceGeneral =
+      `Adicionalmente, para el ${element.currentYear} se generó un valor de activos corrientes de ${element.totalactiac}.\n` +
+      `El valor de esta inversión está dividido en 3 cuentas:\n` +
+      `   - Activos corrientes: ${element.subaccomer} (${activosCorrientesPorcentaje}%)\n` +
+      `   - Propiedad, planta, equipo o activo fijo: ${element.subtppe} (${activosFijosPorcentaje}%)\n` +
+      `   - Otros activos: ${element.subtoaac} (${otrasActividadesPorcentaje}%)\n\n` +
+      `Para la financiación total:\n` +
+      `   - Pasivos corrientes: ${element.subpascorr} (${pasivosCorrientesPorcentaje}%)\n` +
+      `   - Pasivos a largo plazo: ${element.subpalarp} (${pasivosLargoPlazoPorcentaje}%)\n` +
+      `   - Patrimonio: ${element.subpatrim} (${patrimonioPorcentaje}%)`;
+  }
+
+  text +=
+    `${introText}` +
+    `${netSalesText}\n` +
+    `${costOfSalesText}\n` +
+    `${grossOperatingIncomeText}\n` +
+    `${operatingProfitText}\n` +
+    `${netIncomeText}\n\n` +
+    `${balanceGeneral}\n\n` +
+    `\n\n`;
+});
+
     }
     return text;
   };
-
+  //analisis horizontal
   const generateHorizontalText = (horizontalInformation: any) => {
-    let text = "";
-    if (enterpriseInformation?.enterpriseType === "service") {
-      horizontalInformation?.forEach((element: any) => {
-        console.log("horizontalInformation", element);
+  let text = "";
 
-        const introText = `Resultados del análisis horizontal en el ${element.currentYear}.\n`;
-        const netIncomeText = `La utilidad del ejercicio en el año ${element.currentYear} fue de ${element.netIncome}.`;
-        const netIncomeLastYearText = `La utilidad del ejercicio en el año ${element.lastYear} fue de ${element.netIncomeLastYear}.`;
-        const netIncomeVariationText = `La variación de la utilidad del ejercicio en el año ${element.currentYear} con respecto al año ${element.lastYear} fue del ${element.netIncomeVariation}%.`;
-        text += `${introText}${netIncomeText} ${netIncomeLastYearText} ${netIncomeVariationText}\n\n`;
-      });
-    } else {
-    }
-    return text;
-  };
+  // Verificamos si es tipo servicio o no
+  if (enterpriseInformation?.enterpriseType === "service") {
+    horizontalInformation?.forEach((element: any) => {
+      console.log("horizontalInformation", element);
+
+      const balanceGeneral =
+        `🔍 Resultados del análisis horizontal para el balance general en el año ${element.currentYear}:\n\n` +
+        `💡 Diferencias entre las cuentas respecto al año anterior:\n` +
+        `   - Subtotal Activo Corriente: ${element.subactcorrva}\n` +
+        `   - Subtotal Propiedad, Planta y Equipo (Activo Fijo): ${element.subppeava}\n` +
+        `   - Subtotal Otros Activos: ${element.subtoactva}\n` +
+        `💵 - Total inversión o activos fijos: ${element.totalactiasva}\n` +
+        `   - Subtotal Pasivo Corriente: ${element.subpascorrva}\n` +
+        `   - Subtotal Pasivo de Largo Plazo: ${element.subpalarp}\n` +
+        `   - Subtotal Patrimonio: ${element.subpatrimva}\n` +
+        `💵 - Total financiación (pasivo y patrimonio): ${element.totalfinanasva}\n`;
+
+      text +=
+        `${balanceGeneral}\n` +
+        `\n\n`;
+    });
+  } else {
+    horizontalInformation?.forEach((element: any) => {
+      console.log("horizontalInformation", element);
+
+      const balanceGeneral =
+        `🔍 Resultados del análisis horizontal para el balance general en el año ${element.currentYear}:\n\n` +
+        `💡 Diferencias entre las cuentas respecto al año anterior:\n` +
+        `   - Subtotal Activo Corriente: ${element.subaccomerva}\n` +
+        `   - Subtotal Propiedad, Planta y Equipo (Activo Fijo): ${element.subtppeva}\n` +
+        `   - Subtotal Otros Activos: ${element.subtoaacva}\n` +
+        `💵- Total inversión o activos fijos: ${element.totalactiacva}\n` +
+        `   - Subtotal Pasivo Corriente: ${element.subtopcacva}\n` +
+        `   - Subtotal Pasivo de Largo Plazo: ${element.subtoplacva}\n` +
+        `   - Subtotal Patrimonio: ${element.subtopatva}\n` +
+        `💵- Total financiación (pasivo y patrimonio): ${element.totalfinanacva}\n`;
+
+      text +=
+        `${balanceGeneral}\n` +
+        `\n\n`;
+    });
+  }
+
+  return text;
+};
+
 
   const handleSaveResult = () => {
     setLoading({ ...loading, savingResult: true });
@@ -156,7 +309,7 @@ const ResultsComponents = () => {
             [
               {
                 text: "Aceptar",
-                onPress: () => {},
+                onPress: () => { },
                 style: "destructive",
               },
             ],
@@ -194,16 +347,16 @@ const ResultsComponents = () => {
           type="error"
           message={`Primero verifica los análisis Horizontales y verticales generados en "Análisis". Asegúrate de que la información este correctamente diligenciada.`}
           isCloseable={false}
-          onDismiss={() => {}}
+          onDismiss={() => { }}
         />
       )}
       {isAvailable && (
         <CustomAlertInformative
           isVisible={isAvailable}
           type="info"
-          message={`Presione el botón de "Generar resultados con IA" para obtener un análisis de los resultados obtenidos.`}
+          message={`Presione el botón de "Generar resultados" para obtener un análisis de los resultados obtenidos.`}
           isCloseable={false}
-          onDismiss={() => {}}
+          onDismiss={() => { }}
         />
       )}
       {showSessionAlert && (
@@ -212,7 +365,7 @@ const ResultsComponents = () => {
           type="info"
           message={`Para ver el historial de resultados, inicia sesión en "Opciones".`}
           isCloseable={false}
-          onDismiss={() => {}}
+          onDismiss={() => { }}
         />
       )}
 
@@ -242,7 +395,7 @@ const ResultsComponents = () => {
           ) : (
             <CustomFormButton
               onPressFunction={generateIAResults}
-              textButton={"Generar resultados con IA"}
+              textButton={"Generar resultados"}
             />
           )}
         </View>

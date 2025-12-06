@@ -1,49 +1,42 @@
 {
   "project_info": {
-    "project_number": "378349837326",
-    "project_id": "analisis-financiero-anafin",
-    "storage_bucket": "analisis-financiero-anafin.appspot.com"
+    "project_number": "1086441668006",
+    "project_id": "anafin-4a0ba",
+    "storage_bucket": "anafin-4a0ba.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:378349837326:android:f00dcb8a202d2bd8ba305f",
+        "mobilesdk_app_id": "1:1086441668006:android:4ac009efa8138bee312367",
         "android_client_info": {
-          "package_name": "com.anafin.analisisfinanciero.app"
+          "package_name": "com.amca.anafinapp.v2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "378349837326-nofgm19tkr5fg1mopu3e9k1q5i35lffp.apps.googleusercontent.com",
+          "client_id": "1086441668006-06bhtujjsrkd7udipg3ogb82mguuc5qa.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.anafin.analisisfinanciero.app",
-            "certificate_hash": "eaa7a42bccaea9b1c499da1aba6206d2f87444e5"
+            "package_name": "com.amca.anafinapp.v2",
+            "certificate_hash": "c1b365ecb3918d29a76585e7396ac8d56a233806"
           }
         },
         {
-          "client_id": "378349837326-88ovh8e0tg6nqdg96v3a882ql486lpdt.apps.googleusercontent.com",
+          "client_id": "1086441668006-iuud1lflv6kofhue3sl06oeak7d2goq8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBxEwgMVCqy3MAaayCZIUTQIOyI1M220YA"
+          "current_key": "AIzaSyBpyond-Niw9rTutjp8fWiYaYQFc5PuDAo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "378349837326-88ovh8e0tg6nqdg96v3a882ql486lpdt.apps.googleusercontent.com",
+              "client_id": "1086441668006-iuud1lflv6kofhue3sl06oeak7d2goq8.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "378349837326-ejanb0bh7rkijpb7s8imvp26us39hb5l.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.anafin.analisisfinanciero.app"
-              }
             }
           ]
         }

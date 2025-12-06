@@ -23,18 +23,20 @@ export const AuthContextProvider = ({ children }: ChildrenProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log("recuperando usuario");
+ useEffect(() => {
+  console.log("⚙️ Configurando GoogleSignin...");
 
-    GoogleSignin.configure({
-      webClientId:
-        "378349837326-88ovh8e0tg6nqdg96v3a882ql486lpdt.apps.googleusercontent.com",
-      scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-      offlineAccess: true,
-    });
+  GoogleSignin.configure({
+    webClientId: "1086441668006-iuud1lflv6kofhue3sl06oeak7d2goq8.apps.googleusercontent.com",
+    iosClientId: "1086441668006-mql6k17h7iap31cusndae7dv8e6t6jkd.apps.googleusercontent.com",    
+    scopes: ["profile", "email"],
+    offlineAccess: true,
+  });
 
-    getCurrentUser();
-  }, []);
+  console.log("✅ GoogleSignin configurado correctamente");
+
+  getCurrentUser();
+}, []);
 
   const getCurrentUser = async () => {
     setLoading(true);
@@ -59,31 +61,61 @@ export const AuthContextProvider = ({ children }: ChildrenProps) => {
     }
   };
 
-  const login = async () => {
-    setLoading(true);
-    try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-      const response: any = await GoogleSignin.signIn();
-      if (response?.data?.idToken) {
-        const userData: UserInterface = {
-          id: response.data.user.id ?? "",
-          email: response.data.user.email ?? "",
-          photoUrl: response.data.user.photo ?? "",
-          name: response.data.user.name ?? "",
-        };
-        setValues(userData, true);
-      } else {
-        setValues(null, false);
-      }
-    } catch (error: any) {
-      console.error("error login", error);
-      setValues(null, false);
-    } finally {
-      setLoading(false);
+const login = async () => {
+  setLoading(true);
+  console.log("🔍 Iniciando login con Google");
+
+  try {
+    const hasPlayServices = await GoogleSignin.hasPlayServices({
+      showPlayServicesUpdateDialog: true,
+    });
+    console.log("✅ Google Play Services disponibles:", hasPlayServices);
+
+    if (!hasPlayServices) {
+      console.warn("⚠️ Google Play Services NO disponibles");
+      throw new Error("Google Play Services not available");
     }
-  };
+
+    console.log("⏳ Intentando iniciar sesión con Google...");
+    const response: any = await GoogleSignin.signIn();
+    console.log("✅ Resultado de signIn:", response);
+
+    if (response?.idToken || response?.data?.idToken) {
+      const idToken = response?.idToken || response?.data?.idToken;
+      const userInfo = response?.user || response?.data?.user;
+
+      console.log("🆔 idToken recibido:", idToken);
+      console.log("👤 Datos de usuario recibidos:", userInfo);
+
+      const userData: UserInterface = {
+        id: userInfo?.id ?? "",
+        email: userInfo?.email ?? "",
+        photoUrl: userInfo?.photo ?? "",
+        name: userInfo?.name ?? "",
+      };
+
+      console.log("📦 Usuario procesado para el contexto:", userData);
+      setValues(userData, true);
+    } else {
+      console.warn("⚠️ No se recibió idToken (fallo en autenticación)");
+      setValues(null, false);
+    }
+
+  } catch (error: any) {
+    console.error("❌ Error en login con Google:", error);
+
+    if (error.code) console.log("📛 Error code:", error.code);
+    if (error.message) console.log("📄 Error message:", error.message);
+    if (error.stack) console.log("🪵 Stack trace:", error.stack);
+
+    setValues(null, false);
+  } finally {
+    console.log("🔁 Login finalizado");
+    setLoading(false);
+  }
+};
+
+
 
   const loginWithoutGoogle = async () => {
     setLoading(true);

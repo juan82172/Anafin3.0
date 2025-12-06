@@ -1,5 +1,6 @@
 import { CurrencyFormatter } from "@/utils/FunctionsUtils";
-import { Text, TextInput, View } from "react-native";
+import React from "react";
+import { Text, TextInput, View, StyleProp, TextStyle } from "react-native";
 import CurrencyInput from "react-native-currency-input";
 
 interface CustomInputProps {
@@ -11,7 +12,9 @@ interface CustomInputProps {
   inputType?: "text" | "number" | "percentage" | "currency";
   onChangeText: (text: string) => void;
   onBlur?: (action: any) => void;
+  style?: StyleProp<TextStyle>; // ✅ nueva prop para estilos personalizados
 }
+
 const CustomInput: React.FC<CustomInputProps> = ({
   label,
   value,
@@ -21,6 +24,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   inputType = "text",
   onChangeText,
   onBlur,
+  style,
 }) => {
   const Handlers = {
     number: (text: string) => text.replace(/\D/g, ""),
@@ -32,7 +36,6 @@ const CustomInput: React.FC<CustomInputProps> = ({
         : sanitized;
     },
     currency: (text: string) => CurrencyFormatter(text),
-
     text: (text: string) => text,
   };
 
@@ -42,31 +45,52 @@ const CustomInput: React.FC<CustomInputProps> = ({
   };
 
   return (
-    <View className="mb-4">
-      <Text className="mb-1 text-[16px]">{label}</Text>
+    <View style={{ marginBottom: 16 }}>
+      <Text style={{ marginBottom: 4, fontSize: 16 }}>{label}</Text>
+
       {inputType === "currency" || inputType === "percentage" ? (
         <CurrencyInput
-          className="border border-gray-300 rounded-lg p-2 text-[16px]"
           value={parseFloat(value)}
-          onChangeValue={(valueInput) => {
-            onChangeText(valueInput?.toString() ?? "0");
-          }}
+          onChangeValue={(valueInput) =>
+            onChangeText(valueInput?.toString() ?? "0")
+          }
           prefix={inputType === "currency" ? "$  " : "%  "}
           delimiter="."
           separator={inputType === "currency" ? "," : "."}
           precision={inputType === "currency" ? 2 : 1}
           minValue={inputType === "currency" ? 0 : -999}
           editable={editable}
+          style={[
+            {
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 8,
+              padding: 8,
+              fontSize: 16,
+              backgroundColor: editable ? "white" : "#f0f0f0",
+            },
+            style,
+          ]}
         />
       ) : (
         <TextInput
-          className="border border-gray-300 rounded-lg p-2 text-[16px]"
           value={value}
           onChangeText={handleTextChange}
           placeholder={placeholder ?? ""}
           keyboardType={keyboardType}
           onBlur={onBlur}
           editable={editable}
+          style={[
+            {
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 8,
+              padding: 8,
+              fontSize: 16,
+              backgroundColor: editable ? "white" : "#f0f0f0",
+            },
+            style,
+          ]}
         />
       )}
     </View>

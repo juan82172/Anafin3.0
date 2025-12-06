@@ -3,21 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>378349837326-ejanb0bh7rkijpb7s8imvp26us39hb5l.apps.googleusercontent.com</string>
+	<string>1086441668006-mql6k17h7iap31cusndae7dv8e6t6jkd.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.378349837326-ejanb0bh7rkijpb7s8imvp26us39hb5l</string>
+	<string>com.googleusercontent.apps.1086441668006-mql6k17h7iap31cusndae7dv8e6t6jkd</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>1086441668006-06bhtujjsrkd7udipg3ogb82mguuc5qa.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBWVIl38GfTJ3kCqeJ8_BDAe3WaxALc8Ms</string>
+	<string>AIzaSyC2nVIeXTFLhs0P6cErZ-dGr50estwle2U</string>
 	<key>GCM_SENDER_ID</key>
-	<string>378349837326</string>
+	<string>1086441668006</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.anafin.analisisfinanciero.app</string>
 	<key>PROJECT_ID</key>
-	<string>analisis-financiero-anafin</string>
+	<string>anafin-4a0ba</string>
 	<key>STORAGE_BUCKET</key>
-	<string>analisis-financiero-anafin.appspot.com</string>
+	<string>anafin-4a0ba.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:378349837326:ios:02aa1bddde2cabf1ba305f</string>
+	<string>1:1086441668006:ios:1c647fb6fca9e6cc312367</string>
 </dict>
 </plist>

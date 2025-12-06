@@ -7,10 +7,12 @@ import { Text, View } from "react-native";
 import ServiceFormComponent from "../statementResults/ServiceFormComponent";
 import CommercialFormComponent from "../statementResults/CommercialFormComponent";
 import { HorizontalAnalyticsClassByYear } from "@/classes/analyticsClass/HorizontalAnalyticsClass";
-
+import CustomAccordion from "@/components/CustomAccordion";
+import CustomInput from "@/components/CustomInput";
 const AnalyticsComponent = () => {
   const [verticalAnalysis, setVerticalAnalysis] = useState<any>([]);
   const [horizontalAnalysis, setHorizontalAnalysis] = useState<any>([]);
+  const [isOpenDuPont, setIsOpenDuPont] = useState(false);
   const {
     enterpriseInformation,
     dataInformation,
@@ -115,6 +117,7 @@ const AnalyticsComponent = () => {
           {horizontalAnalysis.map((elementByYear: any) =>
             enterpriseInformation?.enterpriseType === "service" ? (
               <ServiceFormComponent
+                typeanalisis={'Horizontal'}
                 key={elementByYear?.currentYear}
                 title={`Análisis ${elementByYear?.currentYear}`}
                 date={elementByYear?.currentYear}
@@ -125,6 +128,7 @@ const AnalyticsComponent = () => {
               />
             ) : (
               <CommercialFormComponent
+                typeanalisis={'Horizontal'}
                 key={elementByYear?.currentYear}
                 title={`Análisis ${elementByYear?.currentYear}`}
                 date={elementByYear?.currentYear}
@@ -137,6 +141,48 @@ const AnalyticsComponent = () => {
           )}
         </View>
       )}
+      {horizontalAnalysis.length > 0 || verticalAnalysis.length > 0 ? (
+        <View className="mb-4">
+          <Text className="text-[18px] font-bold mb-4 self-center">
+            Análisis DuPont
+          </Text>
+          <CustomAccordion
+            isOpen={isOpenDuPont}
+            onToggle={() => setIsOpenDuPont(!isOpenDuPont)}
+            title="Análisis DuPont"
+          >
+            <View className="p-6">
+              <View className="border-b border-neutral-200 mb-2">
+                <CustomInput
+                  label="Margen de utilidad neta"
+                  inputType={"percentage"}
+                  value={"15"}
+                  onChangeText={() => {}}
+                  editable={false}
+                />
+              </View>
+              <View className="border-b border-neutral-200 mb-2">
+                <CustomInput
+                  label="Rotación del Activo Total"
+                  inputType={"number"}
+                  value={"1.3"}
+                  onChangeText={() => {}}
+                  editable={false}
+                />
+              </View>
+              <View className="mb-2">
+                <CustomInput
+                  label="Rentabilidad Financiera"
+                  inputType={"percentage"}
+                  value={"21.4"}
+                  onChangeText={() => {}}
+                  editable={false}
+                />
+              </View>
+            </View>
+          </CustomAccordion>
+        </View>
+      ) : null}
     </View>
   );
 };
