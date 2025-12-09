@@ -130,8 +130,6 @@ export default function IndicatorResultsScreen() {
   } as const;
 
   const getDisplayName = (name: string, category: IndicatorCategory) => {
-    if (category === "days") return `${name} (días)`;
-    if (category === "relation") return `${name} (veces)`;
     return name;
   };
 

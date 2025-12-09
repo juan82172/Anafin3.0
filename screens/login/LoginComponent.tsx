@@ -16,7 +16,7 @@ const LoginComponent = () => {
         <Text className="text-[30px] font-bold text-center">Anafin</Text>
         <Text className="text-[18px] text-slate-500 mt-4 mb-2 text-center">
          Asistencia en la elaboración de análisis financieros para empresas, que incluye la realización de cálculos detallados sobre 
-         estados de resultados, balances generales, y la aplicación de análisis verticales y horizontales
+         estados de resultados, balances generales, la aplicación de análisis verticales y horizontales e indicadores financieros
         </Text>
         <ButtonLogin onPressFunction={login} />
         <ButtonLogin

@@ -28,6 +28,215 @@ const n = (value: unknown): number => {
 const safeDiv = (num: number, den: number): number | "N/A" =>
   den === 0 ? "N/A" : num / den;
 
+/**
+ * Redondea a 2 decimales cuando es número.
+ */
+const round2 = (value: number | string): number | string => {
+  if (typeof value === "number") {
+    return Number(value.toFixed(2));
+  }
+  return value;
+};
+
+/**
+ * Helper para saber si el objeto corresponde a una empresa comercial.
+ * CommercialInformationInterface tiene netSales, ServiceInformationInterface no.
+ */
+const isCommercial = (
+  d: YearData
+): d is CommercialInformationInterface => "netSales" in d;
+
+const getFinancialDebtService = (d: ServiceInformationInterface): number => {
+  return (
+    n(d.obficb) + // obligaciones financieras CP con bancos
+    n(d.obficonoen) + // obligaciones financieras CP otras entidades
+    n(d.oflpbaac) + // obligaciones financieras LP bancos
+    n(d.oflpac) + // obligaciones financieras LP otras entidades
+    n(d.oflpbanco) + // LP bancos (campo alterno)
+    n(d.oflpoenti) // LP otras entidades (campo alterno)
+  );
+};
+
+const getFinancialDebtCommercial = (
+  d: CommercialInformationInterface
+): number => {
+  return (
+    n(d.obficb) +              
+    n(d.obficonoen) +          
+    n(d.oflpbaac) +            
+    n(d.oflpac) +              
+    n(d.oflpbanco) +           
+    n(d.oflpoenti) +          
+    n((d as any).cartascac)
+  );
+};
+
+interface BaseVars {
+  tipo: "service" | "commercial";
+  activoCorriente: number;
+  pasivoCorriente: number;
+  pasivoLargoPlazo: number;
+  pasivoTotal: number;
+  cuentasPorCobrar: number;
+  cuentasPorPagar: number;
+  ventas: number;
+  costoVentas: number;
+  inventarios: number;
+  utilidadOperacional: number;
+  utilidadNeta: number;
+  utilidadAntesImpuestos: number;
+  totalActivos: number;
+  patrimonio: number;
+  gastosFinancieros: number;
+  ingresosFinancieros: number;
+  depre: number;
+  amort: number;
+  ebitda: number;
+  deudaFinanciera: number;
+  activosFijos: number;
+  activosOperacionales: number;
+}
+
+
+const extractBaseVars = (yearData: YearData): BaseVars => {
+  if (isCommercial(yearData)) {
+    const d = yearData as CommercialInformationInterface;
+
+    const activoCorriente = n(d.subaccomer || d.subactcorr);
+    const pasivoCorriente = n(d.subtopcac); // pasivo corriente comercial
+    const pasivoLargoPlazo = n(d.subtoplac); // pasivo LP comercial
+    const pasivoTotal = pasivoCorriente + pasivoLargoPlazo;
+
+    const ventas =
+      n(d.netSales) ||
+      n(d.grossSales) - n(d.returnsAndDiscounts); // ventas netas comercial
+
+    const rawCostOfSales =
+      n(d.costOfSales) ||
+      (n(d.initialInventory) +
+        n(d.purchasesCredit) +
+        n(d.purchasesCash) -
+        n(d.finalInventory));
+    const costoVentas = Math.abs(rawCostOfSales);
+
+    const inventarios = n(d.invemerac);
+
+    const utilidadOperacional = n(d.operatingProfit);
+    const utilidadNeta = n(d.netIncome);
+    const utilidadAntesImpuestos = n(d.profitBeforeTax);
+
+    const totalActivos = n(d.totalactias || d.totalactiac);
+    const patrimonio = n(d.subpatrim || d.subtopatac);
+
+    const gastosFinancieros = n(d.financialExpenses);
+    const ingresosFinancieros = n(d.financialIncome);
+
+    const depre = n(d.depreacumula);
+    const amort = n(d.amortiza);
+    const ebitda = utilidadOperacional + depre + amort;
+
+    const deudaFinanciera = getFinancialDebtCommercial(d);
+
+    const activosFijos = n(d.subppea || d.subtppe);
+    const activosOperacionales = activosFijos + activoCorriente;
+
+    const cuentasPorCobrar =
+      n(d.deudorclien) || n(d.deudorclienac);
+    const cuentasPorPagar = n(d.cuenporpa);
+
+    return {
+      tipo: "commercial",
+      activoCorriente,
+      pasivoCorriente,
+      pasivoLargoPlazo,
+      pasivoTotal,
+      cuentasPorCobrar,
+      cuentasPorPagar,
+      ventas,
+      costoVentas,
+      inventarios,
+      utilidadOperacional,
+      utilidadNeta,
+      utilidadAntesImpuestos,
+      totalActivos,
+      patrimonio,
+      gastosFinancieros,
+      ingresosFinancieros,
+      depre,
+      amort,
+      ebitda,
+      deudaFinanciera,
+      activosFijos,
+      activosOperacionales,
+    };
+  }
+
+  // ============================
+  //      EMPRESAS DE SERVICIO
+  // ============================
+  const d = yearData as ServiceInformationInterface;
+
+  const activoCorriente = n(d.subactcorr);
+  const pasivoCorriente = n(d.subpascorr);
+  const pasivoLargoPlazo = n(d.subpalarp);
+  const pasivoTotal = pasivoCorriente + pasivoLargoPlazo;
+
+  const ventas = n(d.grossSales); // servicios: usamos ventas brutas
+
+  const rawCostOfSales = n((d as any).costOfSales ?? 0);
+  const costoVentas = Math.abs(rawCostOfSales);
+
+  const inventarios = n(d.invemerac);
+
+  const utilidadOperacional = n(d.operatingProfit);
+  const utilidadNeta = n(d.netIncome);
+  const utilidadAntesImpuestos = n(d.profitBeforeTax);
+
+  const totalActivos = n(d.totalactias);
+  const patrimonio = n(d.subpatrim);
+
+  const gastosFinancieros = n(d.financialExpenses);
+  const ingresosFinancieros = n(d.financialIncome);
+
+  const depre = n(d.depreacumula);
+  const amort = n(d.amortiza);
+  const ebitda = utilidadOperacional + depre + amort;
+
+  const deudaFinanciera = getFinancialDebtService(d);
+
+  const activosFijos = n(d.subppea || d.subtppe);
+  const activosOperacionales = activosFijos + activoCorriente;
+
+  const cuentasPorCobrar = n(d.deudorclien || d.deudorclienac);
+  const cuentasPorPagar = n(d.cuenporpa);
+
+  return {
+    tipo: "service",
+    activoCorriente,
+    pasivoCorriente,
+    pasivoLargoPlazo,
+    pasivoTotal,
+    cuentasPorCobrar,
+    cuentasPorPagar,
+    ventas,
+    costoVentas,
+    inventarios,
+    utilidadOperacional,
+    utilidadNeta,
+    utilidadAntesImpuestos,
+    totalActivos,
+    patrimonio,
+    gastosFinancieros,
+    ingresosFinancieros,
+    depre,
+    amort,
+    ebitda,
+    deudaFinanciera,
+    activosFijos,
+    activosOperacionales,
+  };
+};
+
 // =========================
 //  CÁLCULO POR GRUPO
 // =========================
@@ -38,112 +247,108 @@ export const calculateIndicatorsForYear = (
 ): IndicatorResult[] => {
   const results: IndicatorResult[] = [];
 
-  const activoCorriente = n((yearData as any).subactcorr ?? (yearData as any).subaccomer);
-  const pasivoCorriente = n((yearData as any).subpascorr ?? (yearData as any).subtopcac);
+  // 🔹 Tomamos TODAS las variables ya limpias por tipo (service / commercial)
+  const {
+    tipo,
+    activoCorriente,
+    pasivoCorriente,
+    pasivoLargoPlazo,
+    pasivoTotal,
+    cuentasPorCobrar,
+    cuentasPorPagar,
+    ventas,
+    costoVentas,
+    inventarios,
+    utilidadOperacional,
+    utilidadNeta,
+    utilidadAntesImpuestos,
+    totalActivos,
+    patrimonio,
+    gastosFinancieros,
+    ingresosFinancieros,
+    depre,
+    amort,
+    ebitda,
+    deudaFinanciera,
+    activosFijos,
+    activosOperacionales,
+  } = extractBaseVars(yearData);
 
-  const cuentasPorCobrar = n((yearData as any).deudorclien ?? (yearData as any).deudorclienac);
-  const cuentasPorPagar = n((yearData as any).cuenporpa);
-
-  const ventas = n((yearData as any).grossSales);
-
-  const rawCostOfSales = n((yearData as any).costOfSales);
-  const costoVentas = Math.abs(rawCostOfSales);
-
-  const inventarios = n((yearData as any).invemerac ?? (yearData as any).inventarios);
-
-  const utilidadOperacional = n((yearData as any).operatingProfit);
-  const utilidadNeta = n((yearData as any).netIncome);
-  const utilidadAntesImpuestos = n((yearData as any).profitBeforeTax);
-
-  const totalActivos = n((yearData as any).totalactias ?? (yearData as any).totalactiac);
-  const patrimonio = n((yearData as any).subpatrim ?? (yearData as any).subtopatac);
-
-  const pasivoLargoPlazo = n((yearData as any).subpalarp ?? (yearData as any).subtoplac);
-  const pasivoTotal = pasivoCorriente + pasivoLargoPlazo;
-
-  const gastosFinancieros = n((yearData as any).financialExpenses);
-  const ingresosFinancieros = n((yearData as any).financialIncome);
-
-  const depre = n((yearData as any).depreacumula ?? (yearData as any).depreacuac);
-  const amort = n((yearData as any).amortiza ?? (yearData as any).amortizacionesac);
-  const ebitda = utilidadOperacional + depre + amort;
-
-  const deudaFinanciera =
-    n((yearData as any).obficb ?? (yearData as any).ofcbac ?? 0) +
-    n((yearData as any).obficonoen ?? (yearData as any).ofcoecac ?? 0) +
-    n((yearData as any).oflpbaac ?? 0) +
-    n((yearData as any).oflpac ?? 0);
-
-  const activosFijos = n((yearData as any).subppea ?? (yearData as any).subtppe);
-  const activosOperacionales = activosFijos + activoCorriente;
+  // 🔹 Solo agrega si el valor es numérico válido
+  const pushIfValid = (name: string, value: number | "N/A") => {
+    if (value === "N/A") return;
+    if (typeof value === "number" && Number.isFinite(value)) {
+      results.push({ name, value: round2(value) });
+    }
+  };
 
   // ========================
   //        LIQUIDEZ
   // ========================
   if (group === "Liquidez") {
-    results.push(
-      {
-        name: "Razón Corriente",
-        value: safeDiv(activoCorriente, pasivoCorriente),
-      },
-      {
-        name: "Prueba Ácida",
-        value: safeDiv(activoCorriente - inventarios, pasivoCorriente),
-      },
-      {
-        name: "Capital de Trabajo Neto",
-        value: activoCorriente - pasivoCorriente,
-      },
-      {
-        name: "Capital de Trabajo Neto Operativo",
-        value: cuentasPorCobrar - cuentasPorPagar,
-      }
+    pushIfValid("Razón Corriente", safeDiv(activoCorriente, pasivoCorriente));
+
+    pushIfValid(
+      "Prueba Ácida",
+      safeDiv(activoCorriente - inventarios, pasivoCorriente)
     );
+
+    // Capital de trabajo neto
+    results.push({
+      name: "Capital de Trabajo Neto",
+      value: round2(activoCorriente - pasivoCorriente),
+    });
+
+    // Capital de trabajo neto operativo
+    results.push({
+      name: "Capital de Trabajo Neto Operativo",
+      value: round2(cuentasPorCobrar - cuentasPorPagar),
+    });
   }
 
   // ========================
   //      ENDEUDAMIENTO
   // ========================
   if (group === "Endeudamiento") {
-    results.push(
-      {
-        name: "Nivel de Endeudamiento",
-        value: safeDiv(pasivoTotal, totalActivos),
-      },
-      {
-        name: "Endeudamiento Corto Plazo",
-        value: safeDiv(pasivoCorriente, pasivoTotal),
-      },
-      {
-        name: "Veces que se gana el interés",
-        value:
-          gastosFinancieros === 0
-            ? "N/A"
-            : utilidadAntesImpuestos / gastosFinancieros,
-      },
-      {
-        name: "Endeudamiento Financiero",
-        value: safeDiv(deudaFinanciera, totalActivos),
-      },
-      {
-        name: "Impacto de la carga financiera",
-        value:
-          utilidadOperacional === 0
-            ? "N/A"
-            : gastosFinancieros / utilidadOperacional,
-      },
-      {
-        name: "Leverage Total",
-        value: safeDiv(pasivoTotal, patrimonio),
-      },
-      {
-        name: "Leverage Corto Plazo",
-        value: safeDiv(pasivoCorriente, patrimonio),
-      },
-      {
-        name: "Leverage Financiero Total",
-        value: safeDiv(deudaFinanciera, patrimonio),
-      }
+    pushIfValid(
+      "Nivel de Endeudamiento",
+      safeDiv(pasivoTotal, totalActivos)
+    );
+
+    pushIfValid(
+      "Endeudamiento Corto Plazo",
+      safeDiv(pasivoCorriente, pasivoTotal)
+    );
+
+    if (gastosFinancieros !== 0) {
+      pushIfValid(
+        "Veces que se gana el interés",
+        utilidadAntesImpuestos / gastosFinancieros
+      );
+    }
+
+    pushIfValid(
+      "Endeudamiento Financiero",
+      safeDiv(deudaFinanciera, totalActivos)
+    );
+
+    if (utilidadOperacional !== 0) {
+      pushIfValid(
+        "Impacto de la carga financiera",
+        gastosFinancieros / utilidadOperacional
+      );
+    }
+
+    pushIfValid("Leverage Total", safeDiv(pasivoTotal, patrimonio));
+
+    pushIfValid(
+      "Leverage Corto Plazo",
+      safeDiv(pasivoCorriente, patrimonio)
+    );
+
+    pushIfValid(
+      "Leverage Financiero Total",
+      safeDiv(deudaFinanciera, patrimonio)
     );
   }
 
@@ -151,60 +356,50 @@ export const calculateIndicatorsForYear = (
   //        ACTIVIDAD
   // ========================
   if (group === "Actividad") {
-    if (!(ventas === 0 && cuentasPorCobrar === 0)) {
-      results.push({
-        name: "Rotación Cartera",
-        value: cuentasPorCobrar === 0 ? "N/A" : ventas / cuentasPorCobrar,
-      });
+    // Rotación cartera
+    if (ventas > 0 && cuentasPorCobrar > 0) {
+      pushIfValid("Rotación Cartera", ventas / cuentasPorCobrar);
     }
 
+    // Rotación inventarios
     if (inventarios > 0 && costoVentas > 0) {
-      results.push({
-        name: "Rotación Inventarios",
-        value: costoVentas / inventarios,
-      });
+      pushIfValid("Rotación Inventarios", costoVentas / inventarios);
     }
 
+    // Rotación proveedores
     if (costoVentas > 0 && cuentasPorPagar > 0) {
-      results.push({
-        name: "Rotación Proveedores",
-        value: costoVentas / cuentasPorPagar,
-      });
+      pushIfValid("Rotación Proveedores", costoVentas / cuentasPorPagar);
     }
 
-    if (!(ventas === 0 && cuentasPorCobrar === 0)) {
-      results.push({
-        name: "Ciclo Operacional",
-        value: ventas === 0 ? "N/A" : cuentasPorCobrar / ventas,
-      });
+    // Ciclo operacional
+    if (ventas > 0 && cuentasPorCobrar > 0) {
+      pushIfValid("Ciclo Operacional", cuentasPorCobrar / ventas);
     }
 
+    // Rotación activos fijos
     if (ventas > 0 && activosFijos > 0) {
-      results.push({
-        name: "Rotación Activos Fijos",
-        value: ventas / activosFijos,
-      });
+      pushIfValid("Rotación Activos Fijos", ventas / activosFijos);
     }
 
+    // Rotación activos operacionales
     if (ventas > 0 && activosOperacionales > 0) {
-      results.push({
-        name: "Rotación Activos Operacionales",
-        value: ventas / activosOperacionales,
-      });
+      pushIfValid(
+        "Rotación Activos Operacionales",
+        ventas / activosOperacionales
+      );
     }
 
+    // Rotación activo total
     if (ventas > 0 && totalActivos > 0) {
-      results.push({
-        name: "Rotación Activo Total",
-        value: safeDiv(ventas, totalActivos),
-      });
+      pushIfValid("Rotación Activo Total", ventas / totalActivos);
     }
 
+    // Importancia del activo corriente
     if (totalActivos > 0 && activoCorriente > 0) {
-      results.push({
-        name: "Importancia del Activo Corriente",
-        value: safeDiv(activoCorriente, totalActivos),
-      });
+      pushIfValid(
+        "Importancia del Activo Corriente",
+        safeDiv(activoCorriente, totalActivos)
+      );
     }
   }
 
@@ -212,51 +407,46 @@ export const calculateIndicatorsForYear = (
   //      RENTABILIDAD
   // ========================
   if (group === "Rentabilidad") {
+    // Margen bruto
     if (ventas > 0 && costoVentas > 0) {
-      results.push({
-        name: "Margen Bruto",
-        value: (ventas - costoVentas) / ventas,
-      });
+      pushIfValid("Margen Bruto", (ventas - costoVentas) / ventas);
     }
 
+    // Margen operacional
     if (ventas > 0) {
-      results.push({
-        name: "Margen Operacional",
-        value: utilidadOperacional / ventas,
-      });
+      pushIfValid("Margen Operacional", utilidadOperacional / ventas);
     }
 
+    // Margen neto
     if (ventas > 0) {
-      results.push({
-        name: "Margen Neto",
-        value: utilidadNeta / ventas,
-      });
+      pushIfValid("Margen Neto", utilidadNeta / ventas);
     }
 
-    if (patrimonio !== 0) {
-      results.push({
-        name: "ROE (Rendimiento del Patrimonio)",
-        value: safeDiv(utilidadNeta, patrimonio),
-      });
-    }
-
-    if (totalActivos !== 0) {
-      results.push({
-        name: "ROA (Rendimiento del Activo Total)",
-        value: safeDiv(utilidadNeta, totalActivos),
-      });
-    }
-
-    results.push(
-      {
-        name: "OBF (Operación Bruta Financiera)",
-        value: utilidadOperacional + ingresosFinancieros - gastosFinancieros,
-      },
-      {
-        name: "EBITDA",
-        value: ebitda,
-      }
+    // ROE
+    pushIfValid(
+      "ROE (Rendimiento del Patrimonio)",
+      safeDiv(utilidadNeta, patrimonio)
     );
+
+    // ROA
+    pushIfValid(
+      "ROA (Rendimiento del Activo Total)",
+      safeDiv(utilidadNeta, totalActivos)
+    );
+
+    // OBF
+    results.push({
+      name: "OBF (Operación Bruta Financiera)",
+      value: round2(
+        utilidadOperacional + ingresosFinancieros - gastosFinancieros
+      ),
+    });
+
+    // EBITDA
+    results.push({
+      name: "EBITDA",
+      value: round2(ebitda),
+    });
   }
 
   return results;

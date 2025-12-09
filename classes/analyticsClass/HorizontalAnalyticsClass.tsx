@@ -382,14 +382,7 @@ export class HorizontalAnalyticsClassByYear
       this.dataInformationBaseYear.oflpbanco,
       this.dataInformationByYear.oflpbanco
     );
-    horizontalAnalysisObject.oflpoenti = this.calculateValue(
-      this.dataInformationBaseYear.oflpoenti,
-      this.dataInformationByYear.oflpoenti
-    );
-    horizontalAnalysisObject.oflpoentiva = this.calculateValue2(
-      this.dataInformationBaseYear.oflpoenti,
-      this.dataInformationByYear.oflpoenti
-    );
+
     horizontalAnalysisObject.subpalarp = this.calculateValue(
       this.dataInformationBaseYear.subpalarp,
       this.dataInformationByYear.subpalarp

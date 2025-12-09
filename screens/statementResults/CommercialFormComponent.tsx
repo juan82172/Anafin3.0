@@ -33,8 +33,6 @@ const CommercialFormComponent: React.FC<CommercialFormComponentProps> = ({
 
   //console.log("🟢 initialValues:", initialValues);
 
-
-
   const { enterpriseInformation } = useDataContext();
   const formRef = useRef<any>(null);
 
@@ -1157,7 +1155,7 @@ const CommercialFormComponent: React.FC<CommercialFormComponentProps> = ({
                     inputType={percentageValues ? "percentage" : "currency"}
                     value={values.knowhowac.toString()}
                     onChangeText={(value) => {
-                      setFieldValue("know how", value);
+                      setFieldValue("knowhowac", value);
                       calculateValues(
                         { ...values, knowhowac: value },
                         setFieldValue
@@ -2346,7 +2344,7 @@ const CommercialFormComponent: React.FC<CommercialFormComponentProps> = ({
                     inputType={percentageValues ? "percentage" : "currency"}
                     value={values.aportsac.toString()}
                     onChangeText={(value) => {
-                      setFieldValue("aportes sociales", value);
+                      setFieldValue("aportsac", value);
                       calculateValues(
                         { ...values, aportsac: value },
                         setFieldValue
